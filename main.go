@@ -61,6 +61,7 @@ func initializeSentry() {
 }
 
 func main() {
+	fmt.Println("came in here at start of the code...")
 	fmt.Printf("Linode Cloud Controller Manager starting up\n")
 
 	initializeSentry()

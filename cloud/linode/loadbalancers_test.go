@@ -778,7 +778,7 @@ func testUpdateLoadBalancerAddNodeBalancerID(t *testing.T, client *linodego.Clie
 		t.Errorf("LoadBalancer status mismatch: expected %v, got %v", expectedLBStatus, lbStatus)
 	}
 
-	if !fakeAPI.didRequestOccur(http.MethodDelete, fmt.Sprintf("/nodebalancers/%d", nodeBalancer.ID), "") {
+	if !fakeAPI.didRequestOccur(http.MethodDelete, fmt.Sprintf("/v4/nodebalancers/%d", nodeBalancer.ID), "") {
 		t.Errorf("expected old NodeBalancer to have been deleted")
 	}
 }
@@ -1281,7 +1281,7 @@ func testEnsureLoadBalancerPreserveAnnotation(t *testing.T, client *linodego.Cli
 				Spec: testServiceSpec,
 			}
 
-			nb, err := lb.createNodeBalancer(context.TODO(), "linodelb", svc, []*linodego.NodeBalancerConfigCreateOptions{})
+			nb, err := lb.createNodeBalancer(context.TODO(), "linodelb", svc, []*linodego.NodeBalancerConfigCreateOptions{}, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1289,7 +1289,7 @@ func testEnsureLoadBalancerPreserveAnnotation(t *testing.T, client *linodego.Cli
 			svc.Status.LoadBalancer = *makeLoadBalancerStatus(svc, nb)
 			err = lb.EnsureLoadBalancerDeleted(context.TODO(), "linodelb", svc)
 
-			didDelete := fake.didRequestOccur(http.MethodDelete, fmt.Sprintf("/nodebalancers/%d", nb.ID), "")
+			didDelete := fake.didRequestOccur(http.MethodDelete, fmt.Sprintf("/v4/nodebalancers/%d", nb.ID), "")
 			if didDelete && !test.deleted {
 				t.Fatal("load balancer was unexpectedly deleted")
 			} else if !didDelete && test.deleted {
@@ -1363,7 +1363,7 @@ func testEnsureLoadBalancerDeleted(t *testing.T, client *linodego.Client, fake *
 
 	lb := &loadbalancers{client, "us-west", nil}
 	configs := []*linodego.NodeBalancerConfigCreateOptions{}
-	_, err := lb.createNodeBalancer(context.TODO(), "linodelb", svc, configs)
+	_, err := lb.createNodeBalancer(context.TODO(), "linodelb", svc, configs, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1414,7 +1414,7 @@ func testEnsureExistingLoadBalancer(t *testing.T, client *linodego.Client, _ *fa
 	addTLSSecret(t, lb.kubeClient)
 
 	configs := []*linodego.NodeBalancerConfigCreateOptions{}
-	nb, err := lb.createNodeBalancer(context.TODO(), "linodelb", svc, configs)
+	nb, err := lb.createNodeBalancer(context.TODO(), "linodelb", svc, configs, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1628,9 +1628,9 @@ func testCleanupDoesntCall(t *testing.T, client *linodego.Client, fakeAPI *fakeA
 			t.Fatal(err)
 		}
 		expectedRequests := map[fakeRequest]struct{}{
-			{Path: "/nodebalancers", Body: "", Method: "GET"}:                            {},
-			{Path: fmt.Sprintf("/nodebalancers/%v", nb2.ID), Body: "", Method: "GET"}:    {},
-			{Path: fmt.Sprintf("/nodebalancers/%v", nb1.ID), Body: "", Method: "DELETE"}: {},
+			{Path: "/v4/nodebalancers", Body: "", Method: "GET"}:                            {},
+			{Path: fmt.Sprintf("/v4/nodebalancers/%v", nb2.ID), Body: "", Method: "GET"}:    {},
+			{Path: fmt.Sprintf("/v4/nodebalancers/%v", nb1.ID), Body: "", Method: "DELETE"}: {},
 		}
 		if !reflect.DeepEqual(fakeAPI.requests, expectedRequests) {
 			t.Fatalf("expected requests %#v, got %#v instead", expectedRequests, fakeAPI.requests)
@@ -1854,7 +1854,7 @@ func testGetLoadBalancer(t *testing.T, client *linodego.Client, _ *fakeAPI) {
 	}
 
 	configs := []*linodego.NodeBalancerConfigCreateOptions{}
-	nb, err := lb.createNodeBalancer(context.TODO(), "linodelb", svc, configs)
+	nb, err := lb.createNodeBalancer(context.TODO(), "linodelb", svc, configs, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
