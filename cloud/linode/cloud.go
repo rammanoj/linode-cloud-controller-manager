@@ -147,12 +147,16 @@ func (c *linodeCloud) Initialize(clientBuilder cloudprovider.ControllerClientBui
 	sharedInformer := informers.NewSharedInformerFactory(kubeclient, 0)
 	serviceInformer := sharedInformer.Core().V1().Services()
 	nodeInformer := sharedInformer.Core().V1().Nodes()
+	csrInformer := sharedInformer.Certificates().V1().CertificateSigningRequests()
 
 	serviceController := newServiceController(c.loadbalancers.(*loadbalancers), serviceInformer)
 	go serviceController.Run(stopCh)
 
 	nodeController := newNodeController(kubeclient, c.client, nodeInformer)
 	go nodeController.Run(stopCh)
+
+	csrApprover := newCSRApprover(kubeclient, csrInformer)
+	go csrApprover.Run(stopCh)
 }
 
 func (c *linodeCloud) LoadBalancer() (cloudprovider.LoadBalancer, bool) {

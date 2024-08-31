@@ -6,6 +6,7 @@ toolchain go1.22.2
 
 require (
 	github.com/appscode/go v0.0.0-20200323182826-54e98e09185a
+	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/cilium/cilium v1.15.5
 	github.com/getsentry/sentry-go v0.4.0
 	github.com/golang/mock v1.6.0
@@ -14,7 +15,6 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
-	golang.org/x/oauth2 v0.21.0
 	k8s.io/api v0.29.3
 	k8s.io/apimachinery v0.29.3
 	k8s.io/client-go v0.29.3
@@ -132,6 +132,7 @@ require (
 	golang.org/x/crypto v0.24.0 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.26.0 // indirect
+	golang.org/x/oauth2 v0.21.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/term v0.21.0 // indirect
